@@ -20,7 +20,18 @@ export default class GitAutoSyncPlugin extends Plugin {
         statusBarItem.setText('Git Sync');
         statusBarItem.addClass('mod-clickable');
         statusBarItem.addEventListener('click', () => {
-            this.handleSyncClick();
+            new SyncActionModal(this.app, 
+                () => this.runGitPull(false), 
+                () => this.handleSyncClick()
+            ).open();
+        });
+
+        this.addCommand({
+            id: 'git-sync-pull',
+            name: 'Pull Changes',
+            callback: () => {
+                this.runGitPull(false);
+            }
         });
 
         this.addCommand({
@@ -78,6 +89,54 @@ export default class GitAutoSyncPlugin extends Plugin {
     }
 
     onunload() {}
+}
+
+class SyncActionModal extends Modal {
+    onPull: () => void;
+    onCommitPush: () => void;
+
+    constructor(app: App, onPull: () => void, onCommitPush: () => void) {
+        super(app);
+        this.onPull = onPull;
+        this.onCommitPush = onCommitPush;
+    }
+
+    onOpen() {
+        const { contentEl } = this;
+        contentEl.empty();
+        contentEl.createEl('h3', { text: 'Git Sync İşlemi Seçin' });
+
+        new Setting(contentEl)
+            .setName('Manuel Pull')
+            .setDesc('Uzaktaki değişiklikleri kasaya çeker.')
+            .addButton((btn) =>
+                btn
+                    .setButtonText('Pull Yap')
+                    .setCta()
+                    .onClick(() => {
+                        this.close();
+                        this.onPull();
+                    })
+            );
+
+        new Setting(contentEl)
+            .setName('Commit & Push')
+            .setDesc('Değişiklikleri kaydeder ve uzaya gönderir.')
+            .addButton((btn) =>
+                btn
+                    .setButtonText('Commit-Push')
+                    .setCta()
+                    .onClick(() => {
+                        this.close();
+                        this.onCommitPush();
+                    })
+            );
+    }
+
+    onClose() {
+        const { contentEl } = this;
+        contentEl.empty();
+    }
 }
 
 class CommitMessageModal extends Modal {
