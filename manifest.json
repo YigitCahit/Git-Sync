@@ -1,0 +1,10 @@
+{
+	"id": "git-sync",
+	"name": "Git Sync",
+	"version": "1.0.0",
+	"minAppVersion": "1.0.0",
+	"description": "Syncs your notes with a Git repository.",
+	"author": "YigitCahit",
+	"authorUrl": "https://github.com/YigitCahit",
+	"isDesktopOnly": false
+}
